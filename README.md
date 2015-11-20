@@ -5,7 +5,7 @@ IntArr.java
 PairMap.java
 SetPairMap.java
 
-All under
+Copyright 2015, EpicMice,
 Apache License 2.0
 
 
