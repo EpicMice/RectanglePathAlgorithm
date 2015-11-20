@@ -8,6 +8,10 @@ import java.util.Stack;
 
 public class BinarySpaceTree{
 
+	//Currently being overridden in the Split method.
+	/** size is the value of multiples to round the minimum size to.*/
+	public int size = 2;
+	
 	public class Node{
 		public Rectangle rect;
 		public Node[] children = new Node[2];
@@ -52,16 +56,22 @@ public class BinarySpaceTree{
 	//(minWidth/7)*4,
 	//(minWidth/12)*8
 	
-	int size = 4;
+	/**Minimum Width and Height are the sizes which end Nodes will be placed if they reach the threshold.*/
 	public Set<Rectangle> Split(int minWidth, int minHeight){
-		int[] sizes = {
-				
-				(minWidth/15)*4,
-				(minWidth/15)*8,
-				(minWidth/18)*6,
-				(minWidth/18)*12,
-				(minWidth/15)*12,
-			
+		
+		//This int[] determines what multiples to round the minWidth and minHeight to.
+		//Make sure the outcome is even. If it's not even, placing doors based on center sides is not possible with how I'm currently doing it.
+		int[] sizes = {				
+				(minWidth/29)*12,	
+				(minWidth/29)*14,	
+				(minWidth/29)*16,	
+				(minWidth/29)*18,	
+				(minWidth/17)*8,	
+				(minWidth/17)*10,	
+				(minWidth/17)*6,				
+				(minWidth/6)*4,				
+				(minWidth/5)*2,	
+				(minWidth/10)*6,
 				};
 
 		Set<Rectangle> rects = new HashSet<>();
@@ -79,7 +89,7 @@ public class BinarySpaceTree{
 				
 			}else{
 				
-				if(current.rect.width < minWidth && current.rect.height < minHeight){ // change this later to deal with either if able.
+				if(current.rect.width < minWidth && current.rect.height < minHeight){
 					
 					ends.add(current);
 				}else{
@@ -88,6 +98,7 @@ public class BinarySpaceTree{
 					if(current.rect.width == 0 || current.rect.height == 0){
 						continue;
 					}
+					//Check if the width or height are 1.5 times greater than either, divide the rectangle further.
 					if((current.rect.width/current.rect.height > 1.5) && (current.rect.height/current.rect.width < 1.5)){//horizontal
 						int minX = (int)(current.rect.getMinX()+r.nextInt(current.rect.width/size)*size);						
 						int nWidth = minX-current.rect.x;					
@@ -114,7 +125,7 @@ public class BinarySpaceTree{
 						}
 						
 					}
-					//System.out.println(current.rect);
+					//If the height and width of the rectangles to be pushed into the division stack are equal, try again.
 						if(boxes[0].getSize().equals(boxes[1].getSize())){
 						hold.push(current);								
 						}else{
@@ -128,12 +139,11 @@ public class BinarySpaceTree{
 			}
 		}
 			
-		
-		
+		//Add all end nodes to the set.
 		for(Node n: ends){
 			rects.add(n.rect);
 		}
-		
+		//Return the ends result set of nodes.
 		return rects;
 	}
 	

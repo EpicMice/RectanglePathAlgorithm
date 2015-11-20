@@ -11,10 +11,18 @@ import Base.custom.PairMap;
 import Base.custom.SetPairMap;
 
 public class CellGrid {
-	BinarySpaceTree bst;	
+	BinarySpaceTree bst;
+	
+	//The Width/Height dimensions of the Cells to generate the rectangular rooms.
 	int CELL_SIZE = 177;
+	//The minimum width/hegiht variable to apply to the binary space tree.
 	int minSize = 49;
-	int doorSize = 1;
+	
+	//The amount of rooms required to proceed room generation.
+	//if the value of CELL_SIZE/minSize changes, the amount of rooms that can be generated also changes. Be sure to change this value based on rooms expected.
+	int minimumRoomCount = 30;
+	
+	///int 1 = 1;
 	PairMap<IntArr,Rectangle> cellMap = new PairMap<>(); 
 	SetPairMap<IntArr,Rectangle> cellDivisions = new SetPairMap<>();  
 	SetPairMap<IntArr,Rectangle> cellPath = new SetPairMap<>();
@@ -38,7 +46,7 @@ public class CellGrid {
 		for(int o = 0; o < h; o++){
 			for(int i = 0; i < w; i++){			
 				cellMap.put(pos=new IntArr(i,o),fill = new Rectangle(i*CELL_SIZE,o*CELL_SIZE,CELL_SIZE,CELL_SIZE));
-				roomLanding.put(pos, new int[CELL_SIZE/doorSize][CELL_SIZE/doorSize]);
+				roomLanding.put(pos, new int[CELL_SIZE/1][CELL_SIZE/1]);
 				bst = new BinarySpaceTree(fill);
 				for(Rectangle r: bst.Split(minSize,minSize)){
 					cellDivisions.put(pos, r);
@@ -206,7 +214,7 @@ public class CellGrid {
 							bordersB.clear();
 							continue;
 						}else
-						if(added.size() < 50){
+						if(added.size() < minimumRoomCount){
 							current = ((Rectangle)middleCellRects.toArray()[r.nextInt(middleCellRects.size())]);
 							cycles = 0;							
 							added.clear();
@@ -327,47 +335,47 @@ public class CellGrid {
 				if(rooms.containsKey(r)){
 					return;
 				}
-		for(int o = 0; o < r.height/doorSize; o++){
-			for(int i = 0; i < r.width/doorSize; i++){
+		for(int o = 0; o < r.height/1; o++){
+			for(int i = 0; i < r.width/1; i++){
 				
-				Rectangle hold = new Rectangle(r.x+i,r.y+o,doorSize,doorSize);
-				if(i == 0 || o == 0 || o==r.height-doorSize || i == r.width-doorSize){
+				Rectangle hold = new Rectangle(r.x+i,r.y+o,1,1);
+				if(i == 0 || o == 0 || o==r.height-1 || i == r.width-1){
 						placeDown.add(hold.getBounds());
-					if((i == 0 && o == 0)||(i == 0 && o == r.height/doorSize-1)||(i == r.width/doorSize-1 && o == r.height/doorSize-1) || (i == r.width/doorSize-1 && o == 0)){
+					if((i == 0 && o == 0)||(i == 0 && o == r.height/1-1)||(i == r.width/1-1 && o == r.height/1-1) || (i == r.width/1-1 && o == 0)){
 						continue;
 					}				
 					
 					Rectangle holdB = hold.getBounds();
 					if(o == 0){
-						holdB.translate(0, -doorSize);
+						holdB.translate(0, -1);
 						if(rooms.containsValue(holdB)){
 						remove.add(holdB.getBounds());
-						holdB.translate(0, doorSize);
+						holdB.translate(0, 1);
 						remove.add(holdB.getBounds());
 						}
 					}
-					if(o == r.height-doorSize){
-						holdB.translate(0, doorSize);
+					if(o == r.height-1){
+						holdB.translate(0, 1);
 						if(rooms.containsValue(holdB)){
 						remove.add(holdB.getBounds());
-						holdB.translate(0, -doorSize);
+						holdB.translate(0, -1);
 						remove.add(holdB.getBounds());
 						}
 					}
 					
 					if(i == 0){
-						holdB.translate(-doorSize, 0);
+						holdB.translate(-1, 0);
 						if(rooms.containsValue(holdB)){
 						remove.add(holdB.getBounds());
-						holdB.translate(doorSize, 0);
+						holdB.translate(1, 0);
 						remove.add(holdB.getBounds());
 						}
 					}
-					if(i == r.width/doorSize-doorSize){
-						holdB.translate(doorSize, 0);
+					if(i == r.width/1-1){
+						holdB.translate(1, 0);
 						if(rooms.containsValue(holdB)){
 						remove.add(holdB.getBounds());
-						holdB.translate(-doorSize, 0);
+						holdB.translate(-1, 0);
 						remove.add(holdB.getBounds());	
 						}
 					}
@@ -379,7 +387,7 @@ public class CellGrid {
 		
 		for(Rectangle p: placeDown){
 			rooms.put(r, p);
-			roomLanding.get(new IntArr(p.x/CELL_SIZE,p.y/CELL_SIZE))[(p.y-((p.y/CELL_SIZE)*CELL_SIZE))/doorSize][(p.x-((p.x/CELL_SIZE)*CELL_SIZE))/doorSize] = 1;
+			roomLanding.get(new IntArr(p.x/CELL_SIZE,p.y/CELL_SIZE))[(p.y-((p.y/CELL_SIZE)*CELL_SIZE))/1][(p.x-((p.x/CELL_SIZE)*CELL_SIZE))/1] = 1;
 		}
 		/*
 		Set<Rectangle> connectors = new HashSet<>();
@@ -418,30 +426,30 @@ public class CellGrid {
 				connectors.remove(r);
 			for(Rectangle wall: rooms.get(r)){
 				
-				if(wall.x == r.x && (wall.y == r.y || wall.y == r.getMaxY()-doorSize)){
+				if(wall.x == r.x && (wall.y == r.y || wall.y == r.getMaxY()-1)){
 					continue;
 				}
-				if(wall.x == r.getMaxX()-doorSize && (wall.y == r.y || wall.y == r.getMaxY()-doorSize)){
+				if(wall.x == r.getMaxX()-1 && (wall.y == r.y || wall.y == r.getMaxY()-1)){
 					continue;
 				}
 					
 				Rectangle hold = wall.getBounds();				
-				hold.translate(0, -doorSize);
+				hold.translate(0, -1);
 				if(connectors.contains(rooms.getAvailableKeyOfValue(hold))){
 					remove.add(hold.getBounds());
 				}
 				hold = wall.getBounds();				
-				hold.translate(0, doorSize);
+				hold.translate(0, 1);
 				if(connectors.contains(rooms.getAvailableKeyOfValue(hold))){
 					remove.add(hold.getBounds());
 				}
 				hold = wall.getBounds();				
-				hold.translate(-doorSize, 0);
+				hold.translate(-1, 0);
 				if(connectors.contains(rooms.getAvailableKeyOfValue(hold))){
 					remove.add(hold.getBounds());
 				}
 				hold = wall.getBounds();				
-				hold.translate(doorSize, 0);
+				hold.translate(1, 0);
 				if(connectors.contains(rooms.getAvailableKeyOfValue(hold))){
 					remove.add(hold.getBounds());
 				}
@@ -454,10 +462,10 @@ public class CellGrid {
 			PairMap<Integer,Boolean> doorDir = new PairMap<>();
 			boolean hasDoor = false;
 			for(Rectangle rem: remove){
-				if(rem.x == room.x && (rem.y == room.getMaxY()-doorSize || rem.y == room.y)){					
+				if(rem.x == room.x && (rem.y == room.getMaxY()-1 || rem.y == room.y)){					
 					continue;
 				}
-				if(rem.x == room.getMaxX()-doorSize && (rem.y == room.getMaxY()-doorSize || rem.y == room.y)){
+				if(rem.x == room.getMaxX()-1 && (rem.y == room.getMaxY()-1 || rem.y == room.y)){
 					
 					continue;
 				}
@@ -468,13 +476,13 @@ public class CellGrid {
 					if(rem.y == room.y){//removing from top
 						sides.put(dir=0, rem.getBounds());						
 					}
-					if(rem.y == room.getMaxY()-doorSize){//removing from bottom
+					if(rem.y == room.getMaxY()-1){//removing from bottom
 						sides.put(dir=1, rem.getBounds());
 					}
 					if(rem.x == room.x){//removing from left
 						sides.put(dir=2, rem.getBounds());
 					}
-					if(rem.x == room.getMaxX()-doorSize){//removing from right
+					if(rem.x == room.getMaxX()-1){//removing from right
 						sides.put(dir=3, rem.getBounds());
 					}
 					int type = 0;
@@ -483,9 +491,9 @@ public class CellGrid {
 					doorDir.put(dir, hasDoor);
 					}
 					IntArr rCell = new IntArr(rem.x/CELL_SIZE,rem.y/CELL_SIZE);
-					int previousType = roomLanding.get(rCell)[(rem.y-((rem.y/CELL_SIZE)*CELL_SIZE))/doorSize][(rem.x-((rem.x/CELL_SIZE)*CELL_SIZE))/doorSize];					
+					int previousType = roomLanding.get(rCell)[(rem.y-((rem.y/CELL_SIZE)*CELL_SIZE))/1][(rem.x-((rem.x/CELL_SIZE)*CELL_SIZE))/1];					
 					if(previousType != 2){
-					roomLanding.get(rCell)[(rem.y-((rem.y/CELL_SIZE)*CELL_SIZE))/doorSize][(rem.x-((rem.x/CELL_SIZE)*CELL_SIZE))/doorSize]=type;
+					roomLanding.get(rCell)[(rem.y-((rem.y/CELL_SIZE)*CELL_SIZE))/1][(rem.x-((rem.x/CELL_SIZE)*CELL_SIZE))/1]=type;
 					}else{
 						hasDoor = true;
 						doorDir.put(dir,hasDoor);
@@ -564,20 +572,20 @@ public class CellGrid {
 						doorHoldA = doorA.getBounds();
 						//rooms.removeValue(doorA);
 						IntArr rCell = new IntArr(doorA.x/CELL_SIZE,doorA.y/CELL_SIZE);
-						roomLanding.get(rCell)[(doorA.y-((doorA.y/CELL_SIZE)*CELL_SIZE))/doorSize][(doorA.x-((doorA.x/CELL_SIZE)*CELL_SIZE))/doorSize] = 2;
+						roomLanding.get(rCell)[(doorA.y-((doorA.y/CELL_SIZE)*CELL_SIZE))/1][(doorA.x-((doorA.x/CELL_SIZE)*CELL_SIZE))/1] = 2;
 						doorA = doorA.getBounds();
 						switch(side){
 						case 0:
-							doorA.translate(0, -doorSize);
+							doorA.translate(0, -1);
 							break;
 						case 1:
-							doorA.translate(0, doorSize);
+							doorA.translate(0, 1);
 							break;
 						case 2:
-							doorA.translate(-doorSize, 0);
+							doorA.translate(-1, 0);
 							break;
 						case 3:
-							doorA.translate(doorSize, 0);
+							doorA.translate(1, 0);
 							break;
 						}
 						connectorB = rooms.getAvailableKeyOfValue(doorA.getBounds());
@@ -590,7 +598,7 @@ public class CellGrid {
 					
 						//rooms.removeValue(doorA);
 						rCell = new IntArr(doorA.x/CELL_SIZE,doorA.y/CELL_SIZE);
-						roomLanding.get(rCell)[(doorA.y-((doorA.y/CELL_SIZE)*CELL_SIZE))/doorSize][(doorA.x-((doorA.x/CELL_SIZE)*CELL_SIZE))/doorSize] = 2;
+						roomLanding.get(rCell)[(doorA.y-((doorA.y/CELL_SIZE)*CELL_SIZE))/1][(doorA.x-((doorA.x/CELL_SIZE)*CELL_SIZE))/1] = 2;
 					}
 				}
 			}
